@@ -1,0 +1,43 @@
+<!doctype html>
+<html class="no-js" lang="">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <title>Fun with canvas</title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <script src='https://cdn.scaledrone.com/scaledrone.min.js'></script>
+</head>
+
+<body>
+<!--[if lte IE 9]>
+<p class="browserupgrade">You are using an <strong>outdated</strong> browser. Please <a href="https://browsehappy.com/">upgrade
+    your browser</a> to improve your experience and security.</p>
+<![endif]-->
+
+<!-- Add your site or application content here -->
+<a href="https://devtales.net">Devtales</a>
+<div id="game-placeholder"></div>
+<div id="form-placeholder"></div>
+<button id="btnJoinGame">Join a game</button>
+<button id="btnHostGame">Host a game</button>
+<button id="btnFullScreen">Full Screen</button>
+
+<style>
+    a {
+        user-select: none;
+    }
+    canvas {
+        background: black;
+        margin: 0;
+    }
+</style>
+<script type="module">
+    import {init} from "./scripts/init.js";
+    init();
+</script>
+
+</body>
+
+</html>
