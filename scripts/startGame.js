@@ -77,33 +77,55 @@ function attachKeybaordToController(controller)
     };
 };
 
-function launchFullScreen(element) {
-    if(element.requestFullScreen) {
-        element.requestFullScreen();
-    } else if(element.mozRequestFullScreen) {
-        element.mozRequestFullScreen();
-    } else if(element.webkitRequestFullScreen) {
-        element.webkitRequestFullScreen();
-    }
-};
+const mapOver = (value, istart, istop, ostart, ostop) =>
+    ostart + (ostop - ostart) * ((value - istart) / (istop - istart));
 
 function attachDeviceTiltToController(controller) {
-    if (window.DeviceMotionEvent) {
-        window.addEventListener('devicemotion', (event) => {
-            document.getElementById('game-placeholder').innerText = JSON.parse(event.acceleration);
-        });
+    function onTilt(event) {
+        const x = event.beta;  // In degree in the range [-180,180]
+        const y = event.gamma; // In degree in the range [-90,90]
+
+
+        if (x < -6) {
+            controller.releaseTurn();
+            controller.left(mapOver(x, -6, -180, 0.5 , 2));
+        }
+
+        if (x > 6) {
+            controller.releaseTurn();
+            controller.right(mapOver(x, 6, 180, 0.5, 2));
+        }
+
+        if (x < 5 && x > -5) {
+            controller.releaseTurn();
+        }
+
+        if (y > 5) {
+            controller.thrust();
+        } else {
+            controller.releaseThrust();
+        }
     }
+
+    window.addEventListener("touchstart", () => {
+        controller.shoot();
+    }, false);
+    window.addEventListener("touchend", () => {
+        controller.shootRelease();
+    }, false);
+
+    window.addEventListener('deviceorientation', onTilt);
 }
 
-export const startGame = () => {
+export const startGame = (withLogic = true, makeRemoteController) => {
     document.getElementById('game-placeholder').innerHTML =
-        `<canvas width="${window.innerWidth -15}px" height="${window.innerHeight - 45}" id="canvas"></canvas>`;
+        `<canvas class="onTop" width="${window.innerWidth}px" height="${window.innerHeight}" id="canvas"></canvas>`;
 
     const canvas = document.getElementById('canvas');
     const context = canvas.getContext("2d");
 
-    const game = new Game(context, canvas);
-    const controller = game.playerController(0);
+    const game = new Game(context, canvas, withLogic);
+    const controller = withLogic ? game.playerController(0) : makeRemoteController();
     attachKeybaordToController(controller);
     attachDeviceTiltToController(controller);
 
@@ -115,4 +137,6 @@ export const startGame = () => {
     }
 
     requestAnimationFrame(draw);
+
+    return game;
 };

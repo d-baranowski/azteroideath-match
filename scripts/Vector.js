@@ -101,7 +101,18 @@ export class Vector {
     turn(angle) {
         return this.setAngle(this.angle() + angle % 1.0).clone()
     }
+
+    serialize() {
+        return {
+            x: this.x.toFixed(2),
+            y: this.y.toFixed(2)
+        };
+    }
 }
+
+Vector.parse = (data) => {
+    return new Vector(parseFloat(data.x), parseFloat(data.y));
+};
 
 Vector.clone = function (vector) {
     return new Vector(Number(vector.x), Number(vector.y));

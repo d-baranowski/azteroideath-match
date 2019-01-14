@@ -1,7 +1,6 @@
 import {startGame} from "./startGame.js";
-import {createScaledroneRoom} from "./createScaledroneRoom.js";
-import {createConnection} from "./createConnection.js";
-
+import {hostGameForm} from "./hostGameForm.js";
+import {joinGameForm} from "./joinGameForm.js";
 
 window.randomBetween = function(minVal , maxVal)
 {
@@ -16,8 +15,15 @@ Object.prototype.filter = function (callback) {
     return Object.values(this).filter(callback)
 };
 
+Object.prototype.map = function (callback) {
+    return Object.entries(this).reduce((aggregate, [key, val]) => {
+        aggregate[key] = callback(val);
+        return aggregate;
+    }, {})
+};
+
 window.id = () => {
-    return crypto.getRandomValues(new Uint32Array(2)).join('');
+    return crypto.getRandomValues(new Uint32Array(2)).join('').slice(0, 4);
 };
 
 window.coinFlip = function  () {
@@ -25,63 +31,31 @@ window.coinFlip = function  () {
 };
 
 
-export const init = async () => {
+export const init = async (starfield) => {
     /*document.getElementById("btnFullScreen").addEventListener("click", function() {
-        var el = document.documentElement,
+        const game = startGame();
+        var el = document.getElementById('canvas'),
             rfs = el.requestFullscreen
                 || el.webkitRequestFullScreen
                 || el.mozRequestFullScreen
                 || el.msRequestFullscreen
         ;
 
-        rfs.call(el);
-        startGame();
+        // rfs.call(el);
     });*/
 
-    if (window.DeviceMotionEvent) {
-        window.addEventListener('devicemotion', (event) => {
-            document.getElementById('game-placeholder').innerText = JSON.parse(event.acceleration);
-        });
-    }
-    /*
     const formPlaceholder = document.getElementById('form-placeholder');
 
-    function initialForm() {
-        formPlaceholder.innerHTML =
-            `
-             <button id="btnHostGameSubmit">Start</button>
-             <label for="txtGameName">Game Name</label>
-             <div id="txtGameName" />
-            `;
-    }
 
     document.getElementById("btnHostGame").addEventListener('click', () => {
-        initialForm();
+        hostGameForm(formPlaceholder, startGame);
+    });
 
-        document.getElementById('btnHostGameSubmit').addEventListener('click', async () => {
-            const rtcConnectionRoomName = crypto.getRandomValues(new Uint32Array(3)).join('');
-            document.getElementById('txtGameName').innerText = rtcConnectionRoomName;
+    document.getElementById("btnJoinGame").addEventListener('click', () => {
+        joinGameForm(formPlaceholder, startGame);
+    });
 
-            const matchMaker = await createScaledroneRoom({channelId: 'tbrd6Bv7LyXeG8xX', roomName: 'azteroideath-matchmaker'});
-            matchMaker.subscribe('LIST_MATCHES', (message) => {
-                if (message.type === 'LIST_MATCHES') {
-                    matchMaker.publish({type: 'MATCH_AVAILABLE', paylaod: {gameName: rtcConnectionRoomName}})
-                }
-            });
-
-            const webRtcConnectionPromise = createConnection('tbrd6Bv7LyXeG8xX', rtcConnectionRoomName);
-            let openConnection;
-
-            webRtcConnectionPromise.then((con) => {
-                openConnection = con;
-            });
-
-            formPlaceholder.innerHTML = `<button id="btnCloseGame">Close</button>`;
-            document.getElementById('btnCloseGame').addEventListener('click', () => {
-                matchMaker.close();
-                openConnection && openConnection.close();
-                initialForm();
-            })
-        });
-    });*/
+    document.getElementById("btnSinglePlayer").addEventListener('click', () => {
+        startGame();
+    })
 };

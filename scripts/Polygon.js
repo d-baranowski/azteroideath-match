@@ -62,4 +62,22 @@ export class Polygon {
         context.closePath();
         context.stroke();
     }
+
+    serialize() {
+        return {
+            p: this.position.serialize(), // position
+            d: this.direction.toFixed(2), // direction
+            r: this.radius.toFixed(2), // radius
+            s: this.sides // sides
+        };
+    }
 }
+
+Polygon.parse = (data) => {
+    const parsed =  new Polygon();
+    parsed.position = Vector.parse(data.p);
+    parsed.direction = parseFloat(data.d);
+    parsed.radius = parseFloat(data.r);
+    parsed.sides = data.s;
+    return parsed;
+};

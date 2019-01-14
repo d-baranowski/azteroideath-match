@@ -45,12 +45,12 @@ export class Ship extends Polygon {
         this.isThrusting = false;
     }
 
-    left() {
-        this.directionModifier = -0.1;
+    left(mod = 1) {
+        this.directionModifier = -0.1 * mod;
     }
 
-    right() {
-        this.directionModifier = 0.1;
+    right(mod = 1) {
+        this.directionModifier = 0.1 * mod;
     }
 
     releaseTurn() {

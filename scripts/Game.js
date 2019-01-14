@@ -3,15 +3,18 @@ import {Asteroid} from "./Asteroid.js";
 import {Vector} from "./Vector.js";
 import {Bullet} from "./Bullet.js";
 import {Particle} from "./Particle.js";
+import {Polygon} from "./Polygon.js";
+
 
 export class Game {
-  constructor(context, canvas) {
+  constructor(context, canvas, withLogic) {
+    this.followPlayer = 0;
     this.players = [new Ship(), new Ship()];
     this.asteroids = {0: new Asteroid(new Vector(150, 150), new Vector(0.4, 0.4), 80)};
     this.bullets = {};
     this.particles = {};
     this.context = context;
-    this.gameLoop = setInterval(() => this.tick(), 20);
+    withLogic && setInterval(() => this.tick(), 20);
     this.playerOneSpawner = setInterval(() => this.spawnAsteroid(this.players[0]), 1200);
     this.playerOneSpawner = setInterval(() => this.spawnAsteroid(this.players[1]), 1200);
     this.canvas = canvas;
@@ -21,8 +24,6 @@ export class Game {
     if (Object.values(this.asteroids).length > 100) {
       return;
     }
-
-    const moveBy = new Vector(randomBetween(500, 1000) * Math.ceil(randomBetween(0, 1)) ? -1 : 1, randomBetween(500, 1000) * Math.ceil(randomBetween(0, 1)) ? -1 : 1);
 
     const position = player.position.clone().add(randomBetween(500, 1000));
     this.asteroids[id()] = new Asteroid(
@@ -170,17 +171,16 @@ export class Game {
 
     this.removeIfTooFar(this.asteroids);
     this.removeIfTooFar(this.bullets);
-
   }
 
   draw() {
     this.context.save();
-    this.context.translate(this.canvas.width / 2 - this.players[0].position.x, this.canvas.height / 2 - this.players[0].position.y);
+    this.context.translate(this.canvas.width / 2 - this.players[this.followPlayer].position.x, this.canvas.height / 2 - this.players[this.followPlayer].position.y);
 
-    this.particles.forEach(particle => particle.draw(this.context));
-    this.players.forEach(player => player.draw(this.context));
-    this.asteroids.forEach(asteroid => asteroid.draw(this.context));
-    this.bullets.forEach(bullet => bullet.draw(this.context));
+    this.particles.forEach(particle => particle && particle.draw(this.context));
+    this.players.forEach(player => player && player.draw(this.context));
+    this.asteroids.forEach(asteroid => asteroid && asteroid.draw(this.context));
+    this.bullets.forEach(bullet => bullet && bullet.draw(this.context));
 
     this.context.restore();
   }
@@ -189,11 +189,41 @@ export class Game {
     return {
       thrust: () => { this.players[index].thrust(); },
       releaseThrust: () => { this.players[index].releaseThrust(); },
-      left: () => { this.players[index].left(); },
-      right: () => { this.players[index].right(); },
+      left: (mod) => { this.players[index].left(mod); },
+      right: (mod) => { this.players[index].right(mod); },
       releaseTurn: () => { this.players[index].releaseTurn(); },
       shoot: () => { this.players[index].shoot(); },
       shootRelease: () => { this.players[index].shootRelease(); }
     }
   }
+
+  serialize() {
+    return {
+      p:  this.players.map(x => x.serialize()), // players
+      a:  this.asteroids.map(x => x.serialize()), // asteroids
+      b:  this.bullets.map(x => x.serialize()), // bullets
+      pa:  this.particles.map(x => x.serialize()), //particles
+    };
+  }
+
+  setState(data) {
+    const gameState = Game.parse(data);
+    this.players = gameState.players;
+    gameState.asteroids.forEach(x => {
+      x.color = '#F00';
+    });
+    this.asteroids = gameState.asteroids;
+    this.bullets = gameState.bullets;
+    this.particles = gameState.particles
+  }
 }
+
+Game.parse = (data) => {
+  const decoded = msgpack.decode(data);
+  return {
+    players: decoded.p.map(x => Polygon.parse(x)),
+    asteroids: decoded.a.map(x => Polygon.parse(x)),
+    bullets: decoded.b.map(x => Bullet.parse(x)),
+    particles: decoded.pa.map(x => Particle.parse(x)),
+  }
+};

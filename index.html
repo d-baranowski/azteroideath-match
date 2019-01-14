@@ -8,6 +8,7 @@
     <meta name="description" content="">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <script src='https://cdn.scaledrone.com/scaledrone.min.js'></script>
+    <script src="https://rawgit.com/kawanet/msgpack-lite/master/dist/msgpack.min.js"></script>
 </head>
 
 <body>
@@ -16,15 +17,11 @@
     your browser</a> to improve your experience and security.</p>
 <![endif]-->
 
-<!-- Add your site or application content here -->
-<a href="https://devtales.net">Devtales</a>
-<div id="game-placeholder"></div>
-<div id="form-placeholder"></div>
-<button id="btnJoinGame">Join a game</button>
-<button id="btnHostGame">Host a game</button>
-<button id="btnFullScreen">Full Screen</button>
-
 <style>
+    body {
+        background: black;
+    }
+
     a {
         user-select: none;
     }
@@ -32,12 +29,94 @@
         background: black;
         margin: 0;
     }
+
+    .button {
+        height: 25px;
+        margin-top: 10px;
+        margin-bottom: 10px;
+        padding: 15px;
+        border: 3px solid #AE0043;
+        border-radius: 5px;
+
+        font-size: 30px;
+        font-family: 'Futura';
+        color: #fff;
+        text-shadow: 0 0 5px #fff, 0 0 10px #fff, 0 0 20px #AE0043, 0 0 30px #AE0043, 0 0 40px #AE0043, 0 0 55px #AE0043, 0 0 75px #AE0043;
+        text-align: center;
+        line-height: 30px;
+
+        cursor: pointer;
+        user-select: none;
+        transition: all .5s;
+    }
+
+    .button:hover {
+        border: 3px solid #ff0061;
+        text-shadow: 0 0 5px #fff, 0 0 10px #fff, 0 0 20px #ff0061, 0 0 30px #ff0061, 0 0 40px #ff0061, 0 0 55px #ff0061, 0 0 75px #ff0061;
+    }
+
+    .fullScreen {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        right: 0;
+    }
+
+    .menuContainer {
+        z-index: 10;
+        position: absolute;
+
+        top: 0;
+        left: 0;
+        bottom: 0;
+        right: 0;
+
+        display: flex;
+        align-items: center;
+        justify-content: center
+    }
+
+    .elements {
+        width: 320px;
+    }
+
+    .onTop {
+        position: absolute;
+        z-index: 11;
+
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+    }
 </style>
+
 <script type="module">
     import {init} from "./scripts/init.js";
+    import {Starfield} from "./scripts/Starfield.js";
+
+    var container = document.getElementById('fullScreen');
+    var starfield = new Starfield();
+    starfield.initialise(container);
+    starfield.start();
+
     init();
 </script>
 
-</body>
+<div id="game-placeholder"></div>
+<div id="form-placeholder"></div>
 
+<div id="canvasStarfield"></div>
+
+<div class="menuContainer">
+    <div class="elements">
+        <div id="btnJoinGame" class="button">Join Game</div>
+        <div id="btnHostGame" class="button">Host Game</div>
+        <div id="btnSinglePlayer" class="button">Single Player</div>
+    </div>
+</div>
+<div class="fullScreen" id="fullScreen"></div>
+
+</body>
 </html>

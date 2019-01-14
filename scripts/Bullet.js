@@ -3,11 +3,13 @@ import {Line} from "./Line.js";
 
 export class Bullet {
     constructor(player) {
-        this.position = player.position.clone();
-        this.magnitude = new Vector(8, 8).setAngle(player.direction).clone();
-        this.position.add(this.magnitude);
-        this.position.add(this.magnitude);
-        this.position.add(this.magnitude);
+        if (player) {
+            this.position = player.position.clone();
+            this.magnitude = new Vector(8, 8).setAngle(player.direction).clone();
+            this.position.add(this.magnitude);
+            this.position.add(this.magnitude);
+            this.position.add(this.magnitude);
+        }
     }
 
     update() {
@@ -35,4 +37,16 @@ export class Bullet {
     die() {
         this.isGoingToDie = true;
     }
+
+    serialize() {
+        return {
+            p: this.position.serialize()
+        };
+    }
 }
+
+Bullet.parse = (data) => {
+    const parsed = new Bullet();
+    parsed.position = Vector.parse(data.p);
+    return parsed;
+};

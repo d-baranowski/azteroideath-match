@@ -1,7 +1,15 @@
+import {Vector} from "./Vector.js";
+
 export class Particle {
     constructor(position, magnitude) {
-        this.position = position.clone();
-        this.magnitude = magnitude.clone();
+        if (position) {
+            this.position = position.clone();
+        }
+
+        if (magnitude) {
+            this.magnitude = magnitude.clone();
+        }
+
         this.radius = 3;
         this.alpha = 1.0;
     }
@@ -19,4 +27,18 @@ export class Particle {
         context.lineWidth = 1;
         context.stroke();
     }
+
+    serialize() {
+        return {
+            p: this.position.serialize(), // position
+            a: this.alpha.toFixed(2) //alpha
+        }
+    }
 }
+
+Particle.parse = (data) => {
+    const parsed = new Particle();
+    parsed.position = Vector.parse(data.p);
+    parsed.alpha = parseFloat(data.a);
+    return parsed;
+};
