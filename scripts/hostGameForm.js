@@ -7,10 +7,11 @@ function initialForm(formPlaceholder) {
         `<button id="btnHostGameSubmit">Start</button><label for="txtGameName">Game Name</label><div id="txtGameName" />`;
 }
 
-const beginGame = (openConnection, startGame) => {
+const beginGame = (openConnection, startGame, duration) => {
     openConnection.publish({type: "GAME_START"});
 
     const game = startGame();
+    game.setTimeLeft(duration);
 
     const playerTwoController = game.playerController(1);
     const {
@@ -75,7 +76,7 @@ const displayGameCreatorForm = async () => {
       document.getElementById('btnCreateGame').onclick = () => {
           resolve({
               roomName,
-              gameDuration: document.getElementById("gameDuration").getAttribute("value")
+              gameDuration: parseInt(document.getElementById("gameDuration").value)
           });
       };
   })
@@ -123,7 +124,7 @@ export const hostGameForm = (formPlaceholder, startGame) => {
             });
 
             document.getElementById('btnStartGame').onclick = () => {
-                beginGame(openConnection, startGame);
+                beginGame(openConnection, startGame, options.gameDuration);
                 stopListing();
             };
         });
