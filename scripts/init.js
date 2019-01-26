@@ -32,18 +32,6 @@ window.coinFlip = function  () {
 
 
 export const init = async (starfield) => {
-    /*document.getElementById("btnFullScreen").addEventListener("click", function() {
-        const game = startGame();
-        var el = document.getElementById('canvas'),
-            rfs = el.requestFullscreen
-                || el.webkitRequestFullScreen
-                || el.mozRequestFullScreen
-                || el.msRequestFullscreen
-        ;
-
-        // rfs.call(el);
-    });*/
-
     const formPlaceholder = document.getElementById('form-placeholder');
 
 

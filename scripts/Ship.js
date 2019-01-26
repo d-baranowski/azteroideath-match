@@ -14,11 +14,22 @@ export class Ship extends Polygon {
         this.sides = 3;
         this.color = '#FFF';
         this.canShoot = true;
+        this.isDead = false;
     }
 
-    die() {
-        this.position = new Vector(50, 50);
+    die(respawn) {
+        this.isDead = true;
+        this.sides = 0;
         this.magnitude = new Vector();
+
+        setTimeout(() => {
+            respawn();
+        }, 500);
+
+        setTimeout(() => {
+            this.sides = 3;
+            this.isDead = false;
+        }, 3000)
     }
 
     update() {

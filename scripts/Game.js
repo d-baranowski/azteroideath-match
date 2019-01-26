@@ -15,9 +15,18 @@ export class Game {
     this.particles = {};
     this.context = context;
     this.timeLeft = 99;
+    this.playerScores = [0,0];
+    this.stateRadarActive = false;
+
+    this.radar = setInterval(() => {
+      this.stateRadarActive = true;
+      setTimeout(() => {
+        this.stateRadarActive = false
+      }, 3 * 1000)
+    }, 10 * 1000);
     this.playerOneSpawner = setInterval(() => this.spawnAsteroid(this.players[0]), 1200);
     this.playerOneSpawner = setInterval(() => this.spawnAsteroid(this.players[1]), 1200);
-    this.playerScores = [0,0];
+
     this.canvas = canvas;
 
     if (withLogic) {
@@ -28,6 +37,7 @@ export class Game {
         } else {
           clearInterval(this.countdown);
           clearInterval(this.tickInterval);
+          clearInterval(this.radar);
         }
       }, 1000);
     }
@@ -42,7 +52,7 @@ export class Game {
       return;
     }
 
-    const position = player.position.clone().add(randomBetween(500, 1000));
+    const position = player.position.clone().add(new Vector(randomBetween(500, 1000), randomBetween(500, 1000)));
     this.asteroids[id()] = new Asteroid(
         position,
         position.directionTo(player.position).setMagnitude(randomBetween(1, 5)).turn(randomBetween(-1, 1)),
@@ -63,7 +73,11 @@ export class Game {
 
       for (let asteroid of possibleCollisions) {
         if (asteroid.collidesWith(player)) {
-          player.die();
+          player.die(() => {
+            player.position =
+                this.players[this.players.length - 1 - index]
+                    .position.clone().add(new Vector(randomBetween(500, 1000), randomBetween(500, 1000)));
+          });
           this.playerScores[index]--;
           this.explosionAt(asteroid);
           asteroid.markForExplosion();
@@ -95,7 +109,11 @@ export class Game {
         if ((player) => player.position.directionTo(bullet.position).magnitude() < 300) {
           if (bullet.collidesWith(player)) {
             bullet.die();
-            player.die();
+            player.die(() => {
+              player.position =
+                  this.players[this.players.length - 1 - index]
+                      .position.clone().add(new Vector(randomBetween(500, 1000), randomBetween(500, 1000)));
+            });
             this.playerScores[this.playerScores.length - 1 - index]++;
             this.explosionAt(bullet);
           }
@@ -119,7 +137,7 @@ export class Game {
 
   playersShoot() {
     this.players.filter(player => player.isShooting).forEach(player => {
-      if (player.canShoot) {
+      if (player.canShoot && !player.isDead) {
         this.bullets[id()] = new Bullet(player);
         player.canShoot = false;
         setTimeout(() => {
@@ -156,7 +174,7 @@ export class Game {
 
   createThrusterParticles() {
     this.players.forEach(player => {
-      if (player.isThrusting) {
+      if (player.isThrusting && !player.isDead) {
         this.particles[id()] =
             new Particle(
                 player.position
@@ -190,6 +208,14 @@ export class Game {
     this.removeIfTooFar(this.bullets);
   }
 
+  showRadar(player, index) {
+    const dotLocation =
+        player.position.clone().add(player.position.directionTo(this.players[this.players.length - 1 - index].position).setMagnitude(80));
+
+    this.context.fillStyle = '#F00';
+    this.context.fillRect(dotLocation.x,dotLocation.y,4,4);
+  }
+
   draw() {
     this.context.save();
     this.context.translate(this.canvas.width / 2 - this.players[this.followPlayer].position.x, this.canvas.height / 2 - this.players[this.followPlayer].position.y);
@@ -199,14 +225,18 @@ export class Game {
     this.asteroids.forEach(asteroid => asteroid && asteroid.draw(this.context));
     this.bullets.forEach(bullet => bullet && bullet.draw(this.context));
 
+    if (this.stateRadarActive) {
+      this.showRadar(this.players[this.followPlayer], this.followPlayer);
+    }
+
     this.context.restore();
 
     this.context.fillStyle = 'white';
     this.context.font = '30px Impact';
 
     this.context.fillText(this.timeLeft, this.canvas.width / 2, 50);
-    this.context.fillText(this.playerScores[0], 50, 50);
-    this.context.fillText(this.playerScores[1], this.canvas.width - 50, 50);
+    this.context.fillText('P1: ' + this.playerScores[0], 150, 50);
+    this.context.fillText('P2: ' + this.playerScores[1], this.canvas.width - 150, 50);
   }
 
   playerController(index) {
@@ -227,7 +257,8 @@ export class Game {
       a:  this.asteroids.map(x => x.serialize()), // asteroids
       b:  this.bullets.map(x => x.serialize()), // bullets
       pa:  this.particles.map(x => x.serialize()), //particles
-      t: this.timeLeft
+      t: this.timeLeft,
+      ps: this.playerScores
     };
   }
 
@@ -241,6 +272,7 @@ export class Game {
     this.bullets = gameState.bullets;
     this.particles = gameState.particles;
     this.timeLeft = gameState.timeLeft;
+    this.playerScores = gameState.playerScores;
   }
 }
 
@@ -251,6 +283,7 @@ Game.parse = (data) => {
     asteroids: decoded.a.map(x => Polygon.parse(x)),
     bullets: decoded.b.map(x => Bullet.parse(x)),
     particles: decoded.pa.map(x => Particle.parse(x)),
-    timeLeft: decoded.t
+    timeLeft: decoded.t,
+    playerScores: decoded.ps
   }
 };
