@@ -29,16 +29,8 @@ const joinRoom = (roomId, startGame) => {
         connection.publish({type: 'PLAYER_JOINED'});
         const unsubscribe = connection.subscribe("GAME_START", (msg) => {
             if (msg.type === "GAME_START") {
-                document.getElementById('menuContainer').innerHTML = `
-                    <div class="elements">
-                        <div id="btnPlayTheGame" class="neon button">Press to Play</div>
-                    </div>
-                `;
-
-                document.getElementById('btnPlayTheGame').addEventListener('click', () => {
-                    startRemoteGame(connection, startGame);
-                    unsubscribe();
-                });
+                startRemoteGame(connection, startGame);
+                unsubscribe();
             }
         })
     });
