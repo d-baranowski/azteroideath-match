@@ -117,12 +117,14 @@ function attachDeviceTiltToController(controller) {
     window.addEventListener('deviceorientation', onTilt);
 }
 
-export const startGame = (withLogic = true, makeRemoteController) => {
+export const startGame = async (withLogic = true, makeRemoteController) => {
     document.getElementById('game-placeholder').innerHTML =
         `<canvas class="onTop" width="${window.screen.width}px" height="${window.screen.height}px" id="canvas"></canvas>`;
 
     const canvas = document.getElementById('canvas');
     const context = canvas.getContext("2d");
+
+    await screen.orientation.lock("landscape");
 
     const rfs = canvas.requestFullscreen
         || canvas.webkitRequestFullScreen
