@@ -23,7 +23,7 @@ export class Game {
       setTimeout(() => {
         this.stateRadarActive = false
       }, 3 * 1000)
-    }, 10 * 1000);
+    }, 7 * 1000);
     this.playerOneSpawner = setInterval(() => this.spawnAsteroid(this.players[0]), 1200);
     this.playerTwoSpawner = setInterval(() => this.spawnAsteroid(this.players[1]), 1200);
 
