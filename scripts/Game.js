@@ -9,7 +9,7 @@ import {Polygon} from "./Polygon.js";
 export class Game {
   constructor(context, canvas, withLogic) {
     this.followPlayer = 0;
-    this.players = [new Ship(), new Ship()];
+    this.players = [new Ship(), new Ship(new Vector().add(new Vector(randomBetween(500, 1000), randomBetween(500, 1000))))];
     this.asteroids = {0: new Asteroid(new Vector(150, 150), new Vector(0.4, 0.4), 80)};
     this.bullets = {};
     this.particles = {};
@@ -25,7 +25,7 @@ export class Game {
       }, 3 * 1000)
     }, 10 * 1000);
     this.playerOneSpawner = setInterval(() => this.spawnAsteroid(this.players[0]), 1200);
-    this.playerOneSpawner = setInterval(() => this.spawnAsteroid(this.players[1]), 1200);
+    this.playerTwoSpawner = setInterval(() => this.spawnAsteroid(this.players[1]), 1200);
 
     this.canvas = canvas;
 
@@ -35,9 +35,14 @@ export class Game {
         if (this.timeLeft > 0) {
           this.timeLeft--;
         } else {
+          clearInterval(this.playerOneSpawner);
+          clearInterval(this.playerTwoSpawner);
           clearInterval(this.countdown);
           clearInterval(this.tickInterval);
           clearInterval(this.radar);
+          setTimeout(() => {
+            window.location.reload();
+          }, 7 * 1000)
         }
       }, 1000);
     }

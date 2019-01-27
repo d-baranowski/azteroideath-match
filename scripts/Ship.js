@@ -2,9 +2,9 @@ import {Vector} from "./Vector.js";
 import {Polygon} from "./Polygon.js";
 
 export class Ship extends Polygon {
-    constructor() {
+    constructor(position = new Vector()) {
         super();
-        this.position = new Vector();
+        this.position = position;
         this.magnitude = new Vector(/*1, 1*/);
         this.direction = 0.0;
         this.directionModifier = 0.0;
