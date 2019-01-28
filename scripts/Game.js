@@ -8,6 +8,7 @@ import {Polygon} from "./Polygon.js";
 
 export class Game {
   constructor(context, canvas, withLogic) {
+    this.tickCount = 0;
     this.followPlayer = 0;
     this.players = [new Ship(), new Ship(new Vector().add(new Vector(randomBetween(500, 1000), randomBetween(500, 1000))))];
     this.asteroids = {0: new Asteroid(new Vector(150, 150), new Vector(0.4, 0.4), 80)};
@@ -17,16 +18,6 @@ export class Game {
     this.timeLeft = 99;
     this.playerScores = [0,0];
     this.stateRadarActive = false;
-
-    this.radar = setInterval(() => {
-      this.stateRadarActive = true;
-      setTimeout(() => {
-        this.stateRadarActive = false
-      }, 3 * 1000)
-    }, 7 * 1000);
-    this.playerOneSpawner = setInterval(() => this.spawnAsteroid(this.players[0]), 1200);
-    this.playerTwoSpawner = setInterval(() => this.spawnAsteroid(this.players[1]), 1200);
-
     this.canvas = canvas;
 
     if (withLogic) {
@@ -35,11 +26,8 @@ export class Game {
         if (this.timeLeft > 0) {
           this.timeLeft--;
         } else {
-          clearInterval(this.playerOneSpawner);
-          clearInterval(this.playerTwoSpawner);
           clearInterval(this.countdown);
           clearInterval(this.tickInterval);
-          clearInterval(this.radar);
           setTimeout(() => {
             window.location.reload();
           }, 7 * 1000)
@@ -195,6 +183,14 @@ export class Game {
   }
 
   tick() {
+    this.tickCount = (this.tickCount + 1) % 500;
+    if (this.tickCount === 499) {
+      this.spawnAsteroid(this.players[0]);
+      this.spawnAsteroid(this.players[1]);
+    }
+
+    this.stateRadarActive = this.tickCount > 300;
+
     this.createThrusterParticles();
     this.asteroids.forEach(asteroid => asteroid.update());
     this.bullets.forEach(bullet => bullet.update());
@@ -263,7 +259,8 @@ export class Game {
       b:  this.bullets.map(x => x.serialize()), // bullets
       pa:  this.particles.map(x => x.serialize()), //particles
       t: this.timeLeft,
-      ps: this.playerScores
+      ps: this.playerScores,
+      sra: this.stateRadarActive
     };
   }
 
@@ -278,6 +275,7 @@ export class Game {
     this.particles = gameState.particles;
     this.timeLeft = gameState.timeLeft;
     this.playerScores = gameState.playerScores;
+    this.stateRadarActive = gameState.stateRadarActive;
   }
 }
 
@@ -289,6 +287,7 @@ Game.parse = (data) => {
     bullets: decoded.b.map(x => Bullet.parse(x)),
     particles: decoded.pa.map(x => Particle.parse(x)),
     timeLeft: decoded.t,
-    playerScores: decoded.ps
+    playerScores: decoded.ps,
+    stateRadarActive: decoded.sra
   }
 };

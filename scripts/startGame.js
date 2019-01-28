@@ -117,19 +117,24 @@ function attachDeviceTiltToController(controller) {
     window.addEventListener('deviceorientation', onTilt);
 }
 
-export const startGame = (withLogic = true, makeRemoteController) => {
-    document.getElementById('game-placeholder').innerHTML =
-        `<canvas class="onTop" width="${window.screen.width}px" height="${window.screen.height}px" id="canvas"></canvas>`;
+export const startGame = (withLogic = true, makeRemoteController, otherCanvas) => {
+    let canvas = otherCanvas;
 
-    const canvas = document.getElementById('canvas');
+    if (!canvas) {
+        document.getElementById('game-placeholder').innerHTML =
+            `<canvas class="onTop" width="${window.screen.width}px" height="${window.screen.height}px" id="canvas"></canvas>`;
+
+        canvas = document.getElementById('canvas');
+
+        const rfs = canvas.requestFullscreen
+            || canvas.webkitRequestFullScreen
+            || canvas.mozRequestFullScreen
+            || canvas.msRequestFullscreen;
+
+        rfs.call(canvas);
+    }
+
     const context = canvas.getContext("2d");
-
-    const rfs = canvas.requestFullscreen
-        || canvas.webkitRequestFullScreen
-        || canvas.mozRequestFullScreen
-        || canvas.msRequestFullscreen;
-
-    rfs.call(canvas);
 
     const game = new Game(context, canvas, withLogic);
     const controller = withLogic ? game.playerController(0) : makeRemoteController();

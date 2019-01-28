@@ -15,24 +15,31 @@ export class Ship extends Polygon {
         this.color = '#FFF';
         this.canShoot = true;
         this.isDead = false;
+        this.ticksUntilRespawn = -1;
     }
 
     die(respawn) {
+        this.respawn = respawn;
+        this.ticksUntilRespawn = 200;
         this.isDead = true;
         this.sides = 0;
         this.magnitude = new Vector();
-
-        setTimeout(() => {
-            respawn();
-        }, 500);
-
-        setTimeout(() => {
-            this.sides = 3;
-            this.isDead = false;
-        }, 3000)
     }
 
     update() {
+        this.ticksUntilRespawn--;
+
+
+        if (this.ticksUntilRespawn === 100) {
+            this.respawn();
+        }
+
+        if (this.ticksUntilRespawn === 0) {
+            this.sides = 3;
+            this.isDead = false;
+        }
+
+
         if (this.isThrusting) {
             this.thrustForce =
                 new Vector()

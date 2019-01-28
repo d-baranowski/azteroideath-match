@@ -1,7 +1,7 @@
 import {createScaledroneRoom} from "./createScaledroneRoom.js";
 import {createConnection} from "./createConnection.js";
 
-const startRemoteGame = (openConnection, startGame) => {
+const startRemoteGame = (openConnection, startGame, canvas) => {
     const makeRemoteController = () => ({
         thrust: () => { openConnection.publish({type: "CONTROLLER", action: "thrust"}); },
         releaseThrust: () => { openConnection.publish({type: "CONTROLLER", action: "releaseThrust"}); },
@@ -12,7 +12,7 @@ const startRemoteGame = (openConnection, startGame) => {
         shootRelease: () => { openConnection.publish({type: "CONTROLLER", action: "shootRelease"}); },
     });
 
-    const game = startGame(false, makeRemoteController);
+    const game = startGame(false, makeRemoteController, canvas);
     game.followPlayer = 1;
 
     openConnection.subscribe("GAME_STATE_UPDATE", (message) => {
@@ -20,20 +20,6 @@ const startRemoteGame = (openConnection, startGame) => {
             game.setState(message.payload.data);
         }
     })
-};
-
-
-const joinRoom = (roomId, startGame) => {
-    const webRtcConnectionPromise = createConnection('tbrd6Bv7LyXeG8xX', roomId);
-    webRtcConnectionPromise.then((connection) => {
-        connection.publish({type: 'PLAYER_JOINED'});
-        const unsubscribe = connection.subscribe("GAME_START", (msg) => {
-            if (msg.type === "GAME_START") {
-                startRemoteGame(connection, startGame);
-                unsubscribe();
-            }
-        })
-    });
 };
 
 const renderAwailableMatches = (availableMatches, onElementPress) => {
@@ -64,13 +50,32 @@ export const joinGameForm = async (formPlaceholder, startGame) => {
             availableMatches[message.paylaod.roomId] = message.paylaod;
             renderAwailableMatches(availableMatches, (event) => {
                 const roomId = event.target.getAttribute('data-roomId');
-                joinRoom(roomId, startGame);
+
+                document.getElementById('game-placeholder').innerHTML =
+                    `<canvas class="onTop" width="${window.screen.width}px" height="${window.screen.height}px" id="canvas"></canvas>`;
+
+                const canvas = document.getElementById('canvas');
+
+                const rfs = canvas.requestFullscreen
+                    || canvas.webkitRequestFullScreen
+                    || canvas.mozRequestFullScreen
+                    || canvas.msRequestFullscreen;
+
+                rfs.call(canvas);
+
+                const webRtcConnectionPromise = createConnection('tbrd6Bv7LyXeG8xX', roomId);
+                webRtcConnectionPromise.then((connection) => {
+                    connection.publish({type: 'PLAYER_JOINED'});
+                    const unsubscribe = connection.subscribe("GAME_START", (msg) => {
+                        if (msg.type === "GAME_START") {
+                            startRemoteGame(connection, startGame, canvas);
+                            unsubscribe();
+                        }
+                    })
+                });
+
                 unsubscribe();
                 intervalIds.forEach((intervalId) => clearInterval(intervalId));
-                document.getElementById('menuContainer').innerHTML = `
-                    <div class="elements">
-                        <div class="neon">Waiting for Player One</div>
-                    </div>`;
             });
         }
     });
