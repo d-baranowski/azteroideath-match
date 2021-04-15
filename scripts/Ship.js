@@ -72,6 +72,9 @@ export class Ship extends Polygon {
         context.lineWidth = 2;
         context.beginPath();
         const coords = this.generateCoordinates();
+        if (!coords || coords.length < 3) {
+            return;
+        }
         context.moveTo(coords[0].x, coords[0].y);
         context.lineTo(coords[1].x, coords[1].y);
         context.lineTo(this.position.x, this.position.y);
