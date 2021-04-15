@@ -67,6 +67,19 @@ export class Ship extends Polygon {
         this.directionModifier = -0.1 * mod;
     }
 
+    draw(context) {
+        context.strokeStyle = this.color;
+        context.lineWidth = 2;
+        context.beginPath();
+        const coords = this.generateCoordinates();
+        context.moveTo(coords[0].x, coords[0].y);
+        context.lineTo(coords[1].x, coords[1].y);
+        context.lineTo(this.position.x, this.position.y);
+        context.lineTo(coords[2].x, coords[2].y);
+        context.closePath();
+        context.stroke();
+    }
+
     right(mod = 1) {
         this.directionModifier = 0.1 * mod;
     }

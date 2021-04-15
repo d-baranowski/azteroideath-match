@@ -16,7 +16,7 @@ export class Game {
     this.particles = {};
     this.context = context;
     this.timeLeft = 99;
-    this.playerScores = [0,0];
+    this.playerScores = [0, 0];
     this.stateRadarActive = false;
     this.canvas = canvas;
 
@@ -99,17 +99,15 @@ export class Game {
   bulletsPlayersCollisions() {
     this.bullets.forEach(bullet => {
       this.players.forEach((player, index) => {
-        if ((player) => player.position.directionTo(bullet.position).magnitude() < 300) {
-          if (bullet.collidesWith(player)) {
-            bullet.die();
-            player.die(() => {
-              player.position =
-                  this.players[this.players.length - 1 - index]
-                      .position.clone().add(new Vector(randomBetween(500, 1000), randomBetween(500, 1000)));
-            });
-            this.playerScores[this.playerScores.length - 1 - index]++;
-            this.explosionAt(bullet);
-          }
+        if (bullet.collidesWith(player)) {
+          bullet.die();
+          player.die(() => {
+            player.position =
+                this.players[this.players.length - 1 - index]
+                    .position.clone().add(new Vector(randomBetween(500, 1000), randomBetween(500, 1000)));
+          });
+          this.playerScores[this.playerScores.length - 1 - index]++;
+          this.explosionAt(bullet);
         }
       });
     });
@@ -175,7 +173,7 @@ export class Game {
                 player.thrustForce
                     .negative()
                     .turn(randomBetween(-1, 1))
-                    .multiply(randomBetween(7,20))
+                    .multiply(randomBetween(7, 20))
             );
       }
       player.update();
@@ -183,8 +181,8 @@ export class Game {
   }
 
   tick() {
-    this.tickCount = (this.tickCount + 1) % 500;
-    if (this.tickCount === 499) {
+    this.tickCount = (this.tickCount + 1) % 350;
+    if (this.tickCount === 299) {
       this.spawnAsteroid(this.players[0]);
       this.spawnAsteroid(this.players[1]);
     }
@@ -214,7 +212,7 @@ export class Game {
         player.position.clone().add(player.position.directionTo(this.players[this.players.length - 1 - index].position).setMagnitude(80));
 
     this.context.fillStyle = '#F00';
-    this.context.fillRect(dotLocation.x,dotLocation.y,4,4);
+    this.context.fillRect(dotLocation.x, dotLocation.y, 4, 4);
   }
 
   draw() {
@@ -242,22 +240,36 @@ export class Game {
 
   playerController(index) {
     return {
-      thrust: () => { this.players[index].thrust(); },
-      releaseThrust: () => { this.players[index].releaseThrust(); },
-      left: (mod) => { this.players[index].left(mod); },
-      right: (mod) => { this.players[index].right(mod); },
-      releaseTurn: () => { this.players[index].releaseTurn(); },
-      shoot: () => { this.players[index].shoot(); },
-      shootRelease: () => { this.players[index].shootRelease(); }
+      thrust: () => {
+        this.players[index].thrust();
+      },
+      releaseThrust: () => {
+        this.players[index].releaseThrust();
+      },
+      left: (mod) => {
+        this.players[index].left(mod);
+      },
+      right: (mod) => {
+        this.players[index].right(mod);
+      },
+      releaseTurn: () => {
+        this.players[index].releaseTurn();
+      },
+      shoot: () => {
+        this.players[index].shoot();
+      },
+      shootRelease: () => {
+        this.players[index].shootRelease();
+      }
     }
   }
 
   serialize() {
     return {
-      p:  this.players.map(x => x.serialize()), // players
-      a:  this.asteroids.map(x => x.serialize()), // asteroids
-      b:  this.bullets.map(x => x.serialize()), // bullets
-      pa:  this.particles.map(x => x.serialize()), //particles
+      p: this.players.map(x => x.serialize()), // players
+      a: this.asteroids.map(x => x.serialize()), // asteroids
+      b: this.bullets.map(x => x.serialize()), // bullets
+      pa: this.particles.map(x => x.serialize()), //particles
       t: this.timeLeft,
       ps: this.playerScores,
       sra: this.stateRadarActive
