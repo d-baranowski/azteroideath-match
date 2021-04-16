@@ -55,8 +55,10 @@ const beginGame = (openConnection, startGame, duration) => {
 
     setInterval(() => {
         const buffer = msgpack.encode(game.serialize());
+        console.log("serialized to send", game.serialize());
+        console.log("serialized", buffer);
         openConnection.publish({type: "GAME_STATE_UPDATE", payload: buffer})
-    }, 20)
+    }, 15)
 };
 
 const displayGameCreatorForm = async () => {

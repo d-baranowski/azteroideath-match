@@ -5,7 +5,7 @@ export class Bullet {
     constructor(player) {
         if (player) {
             this.position = player.position.clone();
-            this.magnitude = new Vector(8, 8).setAngle(player.direction).clone();
+            this.magnitude = new Vector(8, 8).setAngle(player.direction);
             this.position.add(this.magnitude);
             this.position.add(this.magnitude);
             this.position.add(this.magnitude);

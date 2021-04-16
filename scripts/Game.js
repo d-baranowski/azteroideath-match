@@ -4,6 +4,7 @@ import {Vector} from "./Vector.js";
 import {Bullet} from "./Bullet.js";
 import {Particle} from "./Particle.js";
 import {Polygon} from "./Polygon.js";
+import {PowerUp} from "./PowerUp.js";
 
 
 export class Game {
@@ -11,7 +12,8 @@ export class Game {
     this.tickCount = 0;
     this.followPlayer = 0;
     this.players = [new Ship(), new Ship(new Vector().add(new Vector(randomBetween(500, 1000), randomBetween(500, 1000))))];
-    this.asteroids = {0: new Asteroid(new Vector(150, 150), new Vector(0.4, 0.4), 80)};
+    this.asteroids = {0: new Asteroid(new Vector(150, 150), new Vector(0.4, 0.4), 5)};
+    this.powerUps = {};
     this.bullets = {};
     this.particles = {};
     this.context = context;
@@ -80,6 +82,21 @@ export class Game {
     });
   }
 
+  playersPowerUpsCollisions() {
+    this.players.forEach((player, index) => {
+      const possibleCollisions =
+          this.powerUps.filter(powerUp => powerUp.position.directionTo(player.position).magnitude() < 100);
+
+      for (let powerUp of possibleCollisions) {
+        if (powerUp.collidesWith(player)) {
+          player.powerUp(powerUp);
+          powerUp.markForDeletion();
+          break;
+        }
+      }
+    });
+  }
+
   bulletsAsteroidsCollisions() {
     this.bullets.forEach(bullet => {
       const possibleCollisions =
@@ -101,12 +118,16 @@ export class Game {
       this.players.forEach((player, index) => {
         if (bullet.collidesWith(player)) {
           bullet.die();
-          player.die(() => {
+          const isKilled = player.die(() => {
             player.position =
                 this.players[this.players.length - 1 - index]
                     .position.clone().add(new Vector(randomBetween(500, 1000), randomBetween(500, 1000)));
           });
-          this.playerScores[this.playerScores.length - 1 - index]++;
+          if (isKilled) {
+            this.playerScores[this.playerScores.length - 1 - index]++;
+            this.powerUps[id()] = new PowerUp(bullet.position.clone())
+          }
+          this.explosionAt(bullet);
           this.explosionAt(bullet);
         }
       });
@@ -121,6 +142,8 @@ export class Game {
         if ((value.radius / 2) > 5) {
           this.asteroids[id()] = new Asteroid(value.position.clone(), value.magnitude.turn(0.6).multiply(2), value.radius / 2);
           this.asteroids[id()] = new Asteroid(value.position.clone(), value.magnitude.turn(-0.6).multiply(2), value.radius / 2);
+        } else {
+          this.powerUps[id()] = new PowerUp(value.position.clone(), value.magnitude.turn(0.6).multiply(0.5).clone())
         }
       }
     })
@@ -130,6 +153,14 @@ export class Game {
     this.players.filter(player => player.isShooting).forEach(player => {
       if (player.canShoot && !player.isDead) {
         this.bullets[id()] = new Bullet(player);
+        if (player.level > 2) {
+          const l1 = new Bullet(player)
+          l1.magnitude = new Vector(8, 8).setAngle(player.direction - 0.2);
+          this.bullets[id()] = l1;
+          const l2 = new Bullet(player)
+          l2.magnitude =  new Vector(8, 8).setAngle(player.direction + 0.2);
+          this.bullets[id()] = l2;
+        }
         player.canShoot = false;
         setTimeout(() => {
           player.canShoot = true;
@@ -140,9 +171,16 @@ export class Game {
 
   deleteBullets() {
     Object.entries(this.bullets).forEach(([key, value]) => {
-      const {x, y} = value.position;
       if (value.isGoingToDie) {
         delete this.bullets[key];
+      }
+    })
+  }
+
+  deletePowerUps() {
+    Object.entries(this.powerUps).forEach(([key, value]) => {
+      if (value.isGoingToDie) {
+        delete this.powerUps[key];
       }
     })
   }
@@ -182,7 +220,7 @@ export class Game {
 
   tick() {
     this.tickCount = (this.tickCount + 1) % 350;
-    if (this.tickCount % 80 === 0) {
+    if (this.tickCount % 90 === 0) {
       this.spawnAsteroid(this.players[0]);
       this.spawnAsteroid(this.players[0]);
       this.spawnAsteroid(this.players[1]);
@@ -195,11 +233,14 @@ export class Game {
     this.asteroids.forEach(asteroid => asteroid.update());
     this.bullets.forEach(bullet => bullet.update());
     this.particles.forEach(particle => particle.update());
+    this.powerUps.forEach(p => p.update());
     this.playersAsteroidsCollisions();
+    this.playersPowerUpsCollisions();
     this.bulletsAsteroidsCollisions();
     this.bulletsPlayersCollisions();
 
     this.deleteBullets();
+    this.deletePowerUps();
     this.splitCollidedAsteroids();
     this.deleteParticles();
 
@@ -207,6 +248,7 @@ export class Game {
 
     this.removeIfTooFar(this.asteroids);
     this.removeIfTooFar(this.bullets);
+    this.removeIfTooFar(this.powerUps);
   }
 
   showRadar(player, index) {
@@ -225,6 +267,7 @@ export class Game {
     this.players.forEach(player => player && player.draw(this.context));
     this.asteroids.forEach(asteroid => asteroid && asteroid.draw(this.context));
     this.bullets.forEach(bullet => bullet && bullet.draw(this.context));
+    this.powerUps.forEach(powerUp => powerUp && powerUp.draw(this.context));
 
     if (this.stateRadarActive) {
       this.showRadar(this.players[this.followPlayer], this.followPlayer);
@@ -272,6 +315,7 @@ export class Game {
       a: this.asteroids.map(x => x.serialize()), // asteroids
       b: this.bullets.map(x => x.serialize()), // bullets
       pa: this.particles.map(x => x.serialize()), //particles
+      po: this.powerUps.map(x => x.serialize()), // powerUps
       t: this.timeLeft,
       ps: this.playerScores,
       sra: this.stateRadarActive
@@ -290,16 +334,19 @@ export class Game {
     this.timeLeft = gameState.timeLeft;
     this.playerScores = gameState.playerScores;
     this.stateRadarActive = gameState.stateRadarActive;
+    this.powerUps = gameState.powerUps;
   }
 }
 
 Game.parse = (data) => {
   const decoded = msgpack.decode(data);
+  console.log('decoded',decoded);
   return {
-    players: decoded.p.map(x => Polygon.parse(x)),
+    players: decoded.p.map(x => Ship.parse(x)),
     asteroids: decoded.a.map(x => Polygon.parse(x)),
     bullets: decoded.b.map(x => Bullet.parse(x)),
     particles: decoded.pa.map(x => Particle.parse(x)),
+    powerUps: decoded.po.map(x => PowerUp.parse(x)),
     timeLeft: decoded.t,
     playerScores: decoded.ps,
     stateRadarActive: decoded.sra

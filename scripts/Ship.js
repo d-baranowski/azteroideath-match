@@ -11,24 +11,29 @@ export class Ship extends Polygon {
         this.thrustMagnitude = 0.1;
         this.thrustForce = new Vector();
         this.radius = 10;
+        this.level = 5;
         this.sides = 3;
-        this.color = '#FFF';
         this.canShoot = true;
         this.isDead = false;
         this.ticksUntilRespawn = -1;
     }
 
     die(respawn) {
+        this.level = this.level - 3;
+        if (this.level > 1) {
+           return false;
+        }
         this.respawn = respawn;
         this.ticksUntilRespawn = 200;
         this.isDead = true;
         this.sides = 0;
+        this.level = 1;
         this.magnitude = new Vector();
+        return true;
     }
 
     update() {
         this.ticksUntilRespawn--;
-
 
         if (this.ticksUntilRespawn === 100) {
             this.respawn();
@@ -68,7 +73,15 @@ export class Ship extends Polygon {
     }
 
     draw(context) {
-        context.strokeStyle = this.color;
+        if (this.level > 1) {
+            const delta = (255 / 5) * this.level;
+            const r = Math.max(255 - delta, 0).toString(16)
+            const g = Math.max(255 - delta, 0).toString(16)
+            const b = Math.min(delta, 255).toString(16)
+            context.strokeStyle = `#${r}${g}${b}`;
+        } else {
+            context.strokeStyle = `#FFFFFF`;
+        }
         context.lineWidth = 2;
         context.beginPath();
         const coords = this.generateCoordinates();
@@ -81,6 +94,12 @@ export class Ship extends Polygon {
         context.lineTo(coords[2].x, coords[2].y);
         context.closePath();
         context.stroke();
+    }
+
+    powerUp() {
+        if (this.level < 6) {
+            this.level++
+        }
     }
 
     right(mod = 1) {
@@ -98,4 +117,25 @@ export class Ship extends Polygon {
     shootRelease() {
         this.isShooting = false;
     }
+
+    serialize() {
+        return {
+            p: this.position.serialize(), // position
+            d: this.direction.toFixed(2), // direction
+            r: this.radius.toFixed(2), // radius
+            s: this.sides, // sides
+            l: this.level // level
+        };
+    }
 }
+
+
+Ship.parse = (data) => {
+    const parsed =  new Ship();
+    parsed.position = Vector.parse(data.p);
+    parsed.direction = parseFloat(data.d);
+    parsed.radius = parseFloat(data.r);
+    parsed.sides = data.s;
+    parsed.level = data.l;
+    return parsed;
+};
