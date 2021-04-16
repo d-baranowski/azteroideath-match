@@ -45,7 +45,7 @@ export class Game {
       return;
     }
 
-    const position = player.position.clone().add(new Vector(randomBetween(500, 1000), randomBetween(500, 1000)));
+    const position = player.position.clone().add(new Vector(randomBetween(800, 1300), randomBetween(800, 1300)));
     this.asteroids[id()] = new Asteroid(
         position,
         position.directionTo(player.position).setMagnitude(randomBetween(1, 5)).turn(randomBetween(-1, 1)),
@@ -182,8 +182,10 @@ export class Game {
 
   tick() {
     this.tickCount = (this.tickCount + 1) % 350;
-    if (this.tickCount === 299) {
+    if (this.tickCount % 80 === 0) {
       this.spawnAsteroid(this.players[0]);
+      this.spawnAsteroid(this.players[0]);
+      this.spawnAsteroid(this.players[1]);
       this.spawnAsteroid(this.players[1]);
     }
 
