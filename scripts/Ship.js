@@ -11,7 +11,7 @@ export class Ship extends Polygon {
         this.thrustMagnitude = 0.1;
         this.thrustForce = new Vector();
         this.radius = 10;
-        this.level = 5;
+        this.level = 1;
         this.sides = 3;
         this.canShoot = true;
         this.isDead = false;
