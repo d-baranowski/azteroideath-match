@@ -1,5 +1,37 @@
 import {Game} from "./Game.js";
 
+var audioCtx = new (window.AudioContext || window.webkitAudioContext || window.audioContext);
+
+//duration of the tone in milliseconds. Default is 500
+//frequency of the tone in hertz. default is 440
+//volume of the tone. Default is 1, off is 0.
+//type of tone. Possible values are sine, square, sawtooth, triangle, and custom. Default is sine.
+//callback to use on end of tone
+function beep(duration, frequency, volume, type, callback) {
+    var oscillator = audioCtx.createOscillator();
+    var gainNode = audioCtx.createGain();
+
+    oscillator.connect(gainNode);
+    gainNode.connect(audioCtx.destination);
+
+    if (volume){gainNode.gain.value = volume;}
+    if (frequency){oscillator.frequency.value = frequency;}
+    if (type){oscillator.type = type;}
+    if (callback){oscillator.onended = callback;}
+
+    oscillator.start(audioCtx.currentTime);
+    oscillator.stop(audioCtx.currentTime + ((duration || 500) / 1000));
+};
+
+const thrust = new Audio('sounds/thrust.wav');
+const battle = new Audio('sounds/battle.wav');
+battle.volume = 0.5
+thrust.volume = 0.7
+
+var firingInterval;
+var thrustingInterval;
+var isThrusting;
+
 function attachKeybaordToController(controller)
 {
     window.onkeydown = function(e)
@@ -17,7 +49,15 @@ function attachKeybaordToController(controller)
             //key W or UP
             case 87:
             case 38:
-
+                if (!thrustingInterval) {
+                    isThrusting = true
+                    thrust.loop = true;
+                    thrust.currentTime = 0;
+                    thrust.play()
+                    thrustingInterval = setInterval(function() {
+                        thrust.currentTime = 150;
+                    }, 300);
+                }
                 controller.thrust();
 
                 break;
@@ -33,9 +73,14 @@ function attachKeybaordToController(controller)
             //key Space
             case 32:
             case 75:
+                if (!firingInterval) {
+                    beep(60, 350, 0.2, 'sawtooth');
+                    firingInterval = setInterval(function() {
+                        beep(60, 350, 0.2, 'sawtooth');
+                    }, 250);
+                }
 
                 controller.shoot();
-
                 break;
         }
 
@@ -59,7 +104,11 @@ function attachKeybaordToController(controller)
             //key W or UP
             case 87:
             case 38:
-
+                if (thrustingInterval) {
+                    clearInterval(thrustingInterval)
+                    thrustingInterval = null;
+                    thrust.pause();
+                }
                 controller.releaseThrust();
 
                 break;
@@ -68,6 +117,11 @@ function attachKeybaordToController(controller)
             //key Space
             case 75:
             case 32:
+                if (firingInterval) {
+                    clearInterval(firingInterval);
+                    firingInterval = null;
+                }
+
                 controller.shootRelease();
 
                 break;
@@ -119,6 +173,8 @@ function attachDeviceTiltToController(controller) {
 
 export const startGame = (withLogic = true, makeRemoteController, otherCanvas) => {
     let canvas = otherCanvas;
+    battle.loop = true;
+    battle.play()
 
     if (!canvas) {
         document.getElementById('game-placeholder').innerHTML =

@@ -46,7 +46,6 @@ export class Polygon {
         return false;
     }
 
-
     draw(context) {
         context.strokeStyle = this.color;
         context.lineWidth = 2;

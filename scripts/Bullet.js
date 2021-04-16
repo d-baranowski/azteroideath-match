@@ -22,16 +22,15 @@ export class Bullet {
     }
 
     collidesWith(polygon) {
-        const intersectLine = new Line(this.position, new Vector(100000, this.position.y));
+        const intersectLine = new Line(this.position, this.position.clone().add(this.magnitude));
 
-        let count = 0;
         for (let line of polygon.getLines()) {
             if (intersectLine.intersects(line)) {
-                count++
+                return true
             }
         }
 
-        return !!(count % 2)
+        return false
     }
 
     die() {
