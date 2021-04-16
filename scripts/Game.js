@@ -12,7 +12,7 @@ export class Game {
     this.tickCount = 0;
     this.followPlayer = 0;
     this.players = [new Ship(), new Ship(new Vector().add(new Vector(randomBetween(500, 1000), randomBetween(500, 1000))))];
-    this.asteroids = {0: new Asteroid(new Vector(150, 150), new Vector(0.4, 0.4), 5)};
+    this.asteroids = {};
     this.powerUps = {};
     this.bullets = {};
     this.particles = {};
