@@ -37,9 +37,8 @@ window.coinFlip = function  () {
 };
 
 
-export const init = async (starfield) => {
+export const init = async () => {
     const formPlaceholder = document.getElementById('form-placeholder');
-
 
     document.getElementById("btnHostGame").addEventListener('click', () => {
         hostGameForm(formPlaceholder, startGame);
@@ -53,4 +52,12 @@ export const init = async (starfield) => {
         const game = startGame({ singlePlayer: true });
         game.setTimeLeft(360);
     })
+
+    const isMobile = mobileAndTabletCheck();
+    if (isMobile) {
+        console.log("changing orientation")
+        screen.orientation.lock("landscape").catch(e => console.log)
+    } else {
+        console.log("no need to change orientation")
+    }
 };

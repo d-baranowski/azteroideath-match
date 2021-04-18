@@ -307,7 +307,7 @@ export class Game {
     draw() {
         this.context.save();
         this.starfield.draw();
-        const scale = this.isMobile ? 0.5 : 1;
+        const scale = this.isMobile ? 0.7 : 1;
         const originx = this.players[this.followPlayer].position.x;
         const originy = this.players[this.followPlayer].position.y;
         this.context.translate(this.canvas.width / 2 - originx * scale, this.canvas.height / 2 - originy * scale);

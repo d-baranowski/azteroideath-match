@@ -169,10 +169,8 @@ function attachDeviceTiltToController(controller) {
         }
 
         if (y > 5) {
-            playThrustSound();
             controller.thrust();
         } else {
-            stopThrustSound();
             controller.releaseThrust();
         }
     }
@@ -193,6 +191,15 @@ export const startGame = ({ withLogic = true, makeRemoteController, otherCanvas,
     let canvas = otherCanvas;
     battle.loop = true;
     battle.play()
+
+    const isMobile = mobileAndTabletCheck();
+    if (isMobile) {
+        window.screen.orientation.lock("landscape");
+        console.log("changing orientation")
+        screen.orientation.lock("landscape").catch(e => console.log)
+    } else {
+        console.log("no need to change orientation")
+    }
 
     if (!canvas) {
         document.getElementById('game-placeholder').innerHTML =
