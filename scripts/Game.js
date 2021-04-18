@@ -406,7 +406,6 @@ export class Game {
 
 Game.parse = (data) => {
     const decoded = msgpack.decode(data);
-    console.log('decoded', decoded);
     return {
         players: decoded.p.map(x => Ship.parse(x)),
         asteroids: decoded.a.map(x => Polygon.parse(x)),

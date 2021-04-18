@@ -3,16 +3,30 @@ import {createConnection} from "./createConnection.js";
 
 const startRemoteGame = (openConnection, startGame, canvas) => {
     const makeRemoteController = () => ({
-        thrust: () => { openConnection.publish({type: "CONTROLLER", action: "thrust"}); },
-        releaseThrust: () => { openConnection.publish({type: "CONTROLLER", action: "releaseThrust"}); },
-        left: (mod) => { openConnection.publish({type: "CONTROLLER", action: "left", mod}); },
-        right: (mod) => { openConnection.publish({type: "CONTROLLER", action: "right", mod}); },
-        releaseTurn: () => { openConnection.publish({type: "CONTROLLER", action: "releaseTurn"}); },
-        shoot: () => { openConnection.publish({type: "CONTROLLER", action: "shoot"}); },
-        shootRelease: () => { openConnection.publish({type: "CONTROLLER", action: "shootRelease"}); },
+        thrust: () => {
+            openConnection.publish({type: "CONTROLLER", action: "thrust"});
+        },
+        releaseThrust: () => {
+            openConnection.publish({type: "CONTROLLER", action: "releaseThrust"});
+        },
+        left: (mod) => {
+            openConnection.publish({type: "CONTROLLER", action: "left", mod});
+        },
+        right: (mod) => {
+            openConnection.publish({type: "CONTROLLER", action: "right", mod});
+        },
+        releaseTurn: () => {
+            openConnection.publish({type: "CONTROLLER", action: "releaseTurn"});
+        },
+        shoot: () => {
+            openConnection.publish({type: "CONTROLLER", action: "shoot"});
+        },
+        shootRelease: () => {
+            openConnection.publish({type: "CONTROLLER", action: "shootRelease"});
+        },
     });
 
-    const game = startGame({ withLogin: false, makeRemoteController, otherCanvas: canvas });
+    const game = startGame({withLogic: false, makeRemoteController: makeRemoteController, otherCanvas: canvas});
     game.followPlayer = 1;
 
     openConnection.subscribe("GAME_STATE_UPDATE", (message) => {
