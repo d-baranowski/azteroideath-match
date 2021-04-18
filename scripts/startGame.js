@@ -171,7 +171,7 @@ function attachDeviceTiltToController(controller) {
     window.addEventListener('deviceorientation', onTilt);
 }
 
-export const startGame = (withLogic = true, makeRemoteController, otherCanvas) => {
+export const startGame = ({ withLogic = true, makeRemoteController, otherCanvas, singlePlayer }) => {
     let canvas = otherCanvas;
     battle.loop = true;
     battle.play()
@@ -192,7 +192,7 @@ export const startGame = (withLogic = true, makeRemoteController, otherCanvas) =
 
     const context = canvas.getContext("2d");
 
-    const game = new Game(context, canvas, withLogic);
+    const game = new Game(context, canvas, withLogic, singlePlayer);
     const controller = withLogic ? game.playerController(0) : makeRemoteController();
     attachKeybaordToController(controller);
     attachDeviceTiltToController(controller);

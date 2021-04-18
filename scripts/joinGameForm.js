@@ -12,7 +12,7 @@ const startRemoteGame = (openConnection, startGame, canvas) => {
         shootRelease: () => { openConnection.publish({type: "CONTROLLER", action: "shootRelease"}); },
     });
 
-    const game = startGame(false, makeRemoteController, canvas);
+    const game = startGame({ withLogin: false, makeRemoteController, otherCanvas: canvas });
     game.followPlayer = 1;
 
     openConnection.subscribe("GAME_STATE_UPDATE", (message) => {

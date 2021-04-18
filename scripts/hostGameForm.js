@@ -10,7 +10,7 @@ function initialForm(formPlaceholder) {
 const beginGame = (openConnection, startGame, duration) => {
     openConnection.publish({type: "GAME_START"});
 
-    const game = startGame();
+    const game = startGame({});
     game.setTimeLeft(duration);
 
     const playerTwoController = game.playerController(1);

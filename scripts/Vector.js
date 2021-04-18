@@ -4,6 +4,12 @@ export class Vector {
         this.y = y || 0.0;
     }
 
+    random(from, to) {
+        this.x = randomBetween(from, to);
+        this.y = randomBetween(from, to);
+        return this;
+    }
+
     add(v) {
         if (v instanceof Vector) {
             this.x += v.x;
@@ -65,6 +71,10 @@ export class Vector {
 
     normalize() {
         return this.divide(this.magnitude());
+    }
+
+    distanceTo(v) {
+        return this.directionTo(v).magnitude()
     }
 
     directionTo(v) {

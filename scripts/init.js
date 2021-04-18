@@ -44,6 +44,7 @@ export const init = async (starfield) => {
     });
 
     document.getElementById("btnSinglePlayer").addEventListener('click', () => {
-        startGame();
+        const game = startGame({ singlePlayer: true });
+        game.setTimeLeft(360);
     })
 };

@@ -1,4 +1,3 @@
-import {Vector} from "./Vector.js";
 import {Polygon} from "./Polygon.js";
 
 export class Asteroid extends Polygon {

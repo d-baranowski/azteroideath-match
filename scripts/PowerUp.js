@@ -2,8 +2,9 @@ import {Vector} from "./Vector.js";
 import {Polygon} from "./Polygon.js";
 
 export class PowerUp extends Polygon {
-    constructor(position = new Vector(), magnitude = new Vector()) {
+    constructor({position = new Vector(), magnitude = new Vector(), game}) {
         super();
+        this.game = game;
         this.position = position;
         this.magnitude = magnitude;
         this.radius = 7;
@@ -17,6 +18,19 @@ export class PowerUp extends Polygon {
     update() {
         this.direction += this.directionModifier;
         this.position.add(this.magnitude);
+        this.game.players.forEach(p => {
+            if (p.ticksUntilRespawn < 1) {
+                const distanceToPlayer = p.position.distanceTo(this.position);
+                if (distanceToPlayer < 100) {
+                    const pullToPlayer = this.position.directionTo(p.position);
+                    pullToPlayer.setMagnitude(5)
+                    this.magnitude.add(pullToPlayer)
+                    if (distanceToPlayer < 40) {
+                        this.magnitude = pullToPlayer;
+                    }
+                }
+            }
+        })
     }
 
     markForDeletion() {
