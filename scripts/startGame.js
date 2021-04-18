@@ -32,6 +32,42 @@ var firingInterval;
 var thrustingInterval;
 var isThrusting;
 
+function playThrustSound() {
+    if (!thrustingInterval) {
+        isThrusting = true
+        thrust.loop = true;
+        thrust.currentTime = 0;
+        thrust.play()
+        thrustingInterval = setInterval(function() {
+            thrust.currentTime = 150;
+        }, 300);
+    }
+}
+
+function playShootSound() {
+    if (!firingInterval) {
+        beep(60, 350, 0.2, 'sawtooth');
+        firingInterval = setInterval(function() {
+            beep(60, 350, 0.2, 'sawtooth');
+        }, 250);
+    }
+}
+
+function stopThrustSound() {
+    if (thrustingInterval) {
+        clearInterval(thrustingInterval)
+        thrustingInterval = null;
+        thrust.pause();
+    }
+}
+
+function stopShootingSound() {
+    if (firingInterval) {
+        clearInterval(firingInterval);
+        firingInterval = null;
+    }
+}
+
 function attachKeybaordToController(controller)
 {
     window.onkeydown = function(e)
@@ -49,15 +85,7 @@ function attachKeybaordToController(controller)
             //key W or UP
             case 87:
             case 38:
-                if (!thrustingInterval) {
-                    isThrusting = true
-                    thrust.loop = true;
-                    thrust.currentTime = 0;
-                    thrust.play()
-                    thrustingInterval = setInterval(function() {
-                        thrust.currentTime = 150;
-                    }, 300);
-                }
+                playThrustSound();
                 controller.thrust();
 
                 break;
@@ -73,13 +101,7 @@ function attachKeybaordToController(controller)
             //key Space
             case 32:
             case 75:
-                if (!firingInterval) {
-                    beep(60, 350, 0.2, 'sawtooth');
-                    firingInterval = setInterval(function() {
-                        beep(60, 350, 0.2, 'sawtooth');
-                    }, 250);
-                }
-
+                playShootSound();
                 controller.shoot();
                 break;
         }
@@ -104,11 +126,7 @@ function attachKeybaordToController(controller)
             //key W or UP
             case 87:
             case 38:
-                if (thrustingInterval) {
-                    clearInterval(thrustingInterval)
-                    thrustingInterval = null;
-                    thrust.pause();
-                }
+                stopThrustSound();
                 controller.releaseThrust();
 
                 break;
@@ -117,11 +135,7 @@ function attachKeybaordToController(controller)
             //key Space
             case 75:
             case 32:
-                if (firingInterval) {
-                    clearInterval(firingInterval);
-                    firingInterval = null;
-                }
-
+                stopShootingSound();
                 controller.shootRelease();
 
                 break;
@@ -155,16 +169,20 @@ function attachDeviceTiltToController(controller) {
         }
 
         if (y > 5) {
+            playThrustSound();
             controller.thrust();
         } else {
+            stopThrustSound();
             controller.releaseThrust();
         }
     }
 
     window.addEventListener("touchstart", () => {
+        playShootSound();
         controller.shoot();
     }, false);
     window.addEventListener("touchend", () => {
+        stopShootingSound();
         controller.shootRelease();
     }, false);
 
