@@ -23,9 +23,14 @@ export class PowerUp extends Polygon {
                 const distanceToPlayer = p.position.distanceTo(this.position);
                 if (distanceToPlayer < 100) {
                     const pullToPlayer = this.position.directionTo(p.position);
-                    pullToPlayer.setMagnitude(5)
+                    pullToPlayer.setMagnitude(10)
                     this.magnitude.add(pullToPlayer)
                     if (distanceToPlayer < 40) {
+                        pullToPlayer.setMagnitude(20)
+                        this.magnitude = pullToPlayer;
+                    }
+                    if (distanceToPlayer < 15) {
+                        pullToPlayer.setMagnitude(distanceToPlayer)
                         this.magnitude = pullToPlayer;
                     }
                 }

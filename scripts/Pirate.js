@@ -17,8 +17,9 @@ export class Pirate extends Ship {
         this.shoot();
         const distanceToPlayer = this.position.distanceTo(this.game.players[0].position);
         if (this.game.stateRadarActive || distanceToPlayer < 800) {
-            const directionToPlayer = this.position.directionTo(this.game.players[0].position).angle();
-            const unlucky = randomBetween(0, 1)
+            let directionToPlayer = this.position.directionTo(this.game.players[0].position).angle();
+            const miss = randomBetween(-5, 5)
+            directionToPlayer += miss * 0.1;
             if (directionToPlayer < this.direction) {
                 this.controller.left();
             } else if (directionToPlayer > this.direction) {
