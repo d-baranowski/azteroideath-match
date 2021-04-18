@@ -16,31 +16,37 @@ export function Starfield() {
 }
 
 //	The main function - initialises the starfield.
-Starfield.prototype.initialise = function(div) {
+Starfield.prototype.initialise = function(div, otherCanvas) {
     var self = this;
 
-    //	Store the div.
-    this.containerDiv = div;
-    self.width = window.innerWidth;
-    self.height = window.innerHeight;
-
-    window.addEventListener('resize', function resize(event) {
+    if (!otherCanvas) {
+        //	Store the div.
+        this.containerDiv = div;
         self.width = window.innerWidth;
         self.height = window.innerHeight;
-        self.canvas.width = self.width;
-        self.canvas.height = self.height;
-        self.draw();
-    });
 
-    //	Create the canvas.
-    var canvas = document.createElement('canvas');
-    div.appendChild(canvas);
-    this.canvas = canvas;
-    this.canvas.width = this.width;
-    this.canvas.height = this.height;
+        window.addEventListener('resize', function resize(event) {
+            self.width = window.innerWidth;
+            self.height = window.innerHeight;
+            self.canvas.width = self.width;
+            self.canvas.height = self.height;
+            self.draw();
+        });
+
+        //	Create the canvas.
+        var canvas = document.createElement('canvas');
+        div.appendChild(canvas);
+        this.canvas = canvas;
+        this.canvas.width = this.width;
+        this.canvas.height = this.height;
+    } else {
+        this.width = otherCanvas.width;
+        this.height = otherCanvas.height;
+        this.canvas = otherCanvas;
+    }
 };
 
-Starfield.prototype.start = function() {
+Starfield.prototype.start = function(noInterval) {
 
     //	Create the stars.
     var stars = [];
@@ -51,11 +57,13 @@ Starfield.prototype.start = function() {
     this.stars = stars;
 
     var self = this;
-    //	Start the timer.
-    this.intervalId = setInterval(function() {
-        self.update();
-        self.draw();
-    }, 1000 / this.fps);
+    if (!noInterval) {
+        //	Start the timer.
+        this.intervalId = setInterval(function () {
+            self.update();
+            self.draw();
+        }, 1000 / this.fps);
+    }
 };
 
 Starfield.prototype.stop = function() {

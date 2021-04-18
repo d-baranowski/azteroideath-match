@@ -6,10 +6,12 @@ import {Particle} from "./Particle.js";
 import {Polygon} from "./Polygon.js";
 import {PowerUp} from "./PowerUp.js";
 import {Pirate} from "./Pirate.js";
+import {Starfield} from "./Starfield.js";
 
 
 export class Game {
     constructor(context, canvas, withLogic, singlePlayer) {
+        this.isMobile = mobileAndTabletCheck();
         this.singlePlayer = singlePlayer;
         this.tickCount = 0;
         this.followPlayer = 0;
@@ -48,6 +50,10 @@ export class Game {
                 }
             }, 1000);
         }
+
+        this.starfield = new Starfield();
+        this.starfield.initialise(null, canvas);
+        this.starfield.start(true);
     }
 
     setTimeLeft(duration) {
@@ -275,6 +281,9 @@ export class Game {
         this.deleteParticles();
 
         this.playersShoot();
+        if (this.tickCount % 10 === 0) {
+            this.starfield.update();
+        }
 
         this.removeIfTooFar(this.asteroids);
         this.removeIfTooFar(this.bullets);
@@ -297,7 +306,13 @@ export class Game {
 
     draw() {
         this.context.save();
-        this.context.translate(this.canvas.width / 2 - this.players[this.followPlayer].position.x, this.canvas.height / 2 - this.players[this.followPlayer].position.y);
+        this.starfield.draw();
+        const scale = this.isMobile ? 0.5 : 1;
+        const originx = this.players[this.followPlayer].position.x;
+        const originy = this.players[this.followPlayer].position.y;
+        this.context.translate(this.canvas.width / 2 - originx * scale, this.canvas.height / 2 - originy * scale);
+        this.context.scale(scale, scale);
+
 
         this.particles.forEach(particle => particle && particle.draw(this.context));
         this.players.forEach(player => player && player.draw(this.context));
