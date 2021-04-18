@@ -329,10 +329,23 @@ export class Game {
         this.context.fillStyle = 'white';
         this.context.font = '30px Impact';
 
-        this.context.fillText(this.timeLeft, this.canvas.width / 2, 50);
-        this.context.fillText('P1: ' + this.playerScores[0], 150, 50);
-        if (!this.singlePlayer) {
-            this.context.fillText('P2: ' + this.playerScores[1], this.canvas.width - 150, 50);
+        if (this.isMobile && Math.abs( window.screen.orientation.angle ) !== 90 ) {
+            this.context.save();
+            this.context.translate(0, 0);
+            this.context.rotate(Math.PI/2);
+            this.context.textAlign = "center";
+            this.context.fillText(this.timeLeft, this.canvas.height / 2, -window.screen.width + 50);
+            this.context.fillText('P1: ' + this.playerScores[0], 50, -window.screen.width + 50);
+            // if (!this.singlePlayer) {
+                this.context.fillText('P2: ' + this.playerScores[1], this.canvas.height - 50, -window.screen.width + 50);
+            // }
+            this.context.restore();
+        } else {
+            this.context.fillText(this.timeLeft, this.canvas.width / 2, 50);
+            this.context.fillText('P1: ' + this.playerScores[0], 150, 50);
+            if (!this.singlePlayer) {
+                this.context.fillText('P2: ' + this.playerScores[1], this.canvas.width - 150, 50);
+            }
         }
     }
 

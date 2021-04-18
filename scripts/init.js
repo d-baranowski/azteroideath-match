@@ -41,23 +41,42 @@ export const init = async () => {
     const formPlaceholder = document.getElementById('form-placeholder');
 
     document.getElementById("btnHostGame").addEventListener('click', () => {
+        const isMobile = mobileAndTabletCheck();
+        if (isMobile) {
+            window.screen.orientation.lock("landscape");
+            console.log("changing orientation")
+            screen.orientation.lock("landscape").catch(e => console.log)
+        } else {
+            console.log("no need to change orientation")
+        }
+
         hostGameForm(formPlaceholder, startGame);
     });
 
     document.getElementById("btnJoinGame").addEventListener('click', () => {
+        const isMobile = mobileAndTabletCheck();
+        if (isMobile) {
+            window.screen.orientation.lock("landscape");
+            console.log("changing orientation")
+            screen.orientation.lock("landscape").catch(e => console.log)
+        } else {
+            console.log("no need to change orientation")
+        }
+
         joinGameForm(formPlaceholder, startGame);
     });
 
     document.getElementById("btnSinglePlayer").addEventListener('click', () => {
+        const isMobile = mobileAndTabletCheck();
+        if (isMobile) {
+            window.screen.orientation.lock("landscape");
+            console.log("changing orientation")
+            screen.orientation.lock("landscape").catch(e => console.log)
+        } else {
+            console.log("no need to change orientation")
+        }
+
         const game = startGame({ singlePlayer: true });
         game.setTimeLeft(360);
     })
-
-    const isMobile = mobileAndTabletCheck();
-    if (isMobile) {
-        console.log("changing orientation")
-        screen.orientation.lock("landscape").catch(e => console.log)
-    } else {
-        console.log("no need to change orientation")
-    }
 };

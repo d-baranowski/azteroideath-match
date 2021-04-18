@@ -192,15 +192,6 @@ export const startGame = ({ withLogic = true, makeRemoteController, otherCanvas,
     battle.loop = true;
     battle.play()
 
-    const isMobile = mobileAndTabletCheck();
-    if (isMobile) {
-        window.screen.orientation.lock("landscape");
-        console.log("changing orientation")
-        screen.orientation.lock("landscape").catch(e => console.log)
-    } else {
-        console.log("no need to change orientation")
-    }
-
     if (!canvas) {
         document.getElementById('game-placeholder').innerHTML =
             `<canvas class="onTop" width="${window.screen.width}px" height="${window.screen.height}px" id="canvas"></canvas>`;
