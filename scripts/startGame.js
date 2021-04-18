@@ -176,11 +176,11 @@ function attachDeviceTiltToController(controller) {
     }
 
     window.addEventListener("touchstart", () => {
-        playShootSound();
+        // playShootSound();
         controller.shoot();
     }, false);
     window.addEventListener("touchend", () => {
-        stopShootingSound();
+        // stopShootingSound();
         controller.shootRelease();
     }, false);
 
