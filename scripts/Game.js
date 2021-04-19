@@ -221,9 +221,15 @@ export class Game {
 
     removeIfTooFar(list) {
         Object.entries(list).forEach(([key, value]) => {
-            if (value.position.clone().directionTo(this.players[0].position).magnitude() > 1000 && value.position.clone().directionTo(this.players[1].position).magnitude() > 1000) {
-                delete list[key];
+            for (let i = 0; i < this.players.length; i++) {
+                const p = this.players[i];
+                const d = p.position.distanceTo(value.position)
+                if (d < 5000) {
+                    return;
+                }
             }
+
+            delete list[key];
         })
     }
 
@@ -301,7 +307,6 @@ export class Game {
             this.context.fillStyle = '#F00';
             this.context.fillRect(dotLocation.x, dotLocation.y, 4, 4);
         })
-
     }
 
     draw() {
