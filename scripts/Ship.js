@@ -19,10 +19,16 @@ export class Ship extends Polygon {
     }
 
     die(respawn) {
-        this.level = this.level - 3;
-        if (this.level > 1) {
-           return false;
+        if (this.invincibility > 0) {
+            return false;
         }
+
+        if (this.level > 1) {
+            this.invincibility = 25;
+            this.level = this.level - 1;
+            return false;
+        }
+
         this.respawn = respawn;
         this.ticksUntilRespawn = 200;
         this.isDead = true;
@@ -33,6 +39,7 @@ export class Ship extends Polygon {
     }
 
     update() {
+        this.invincibility--;
         this.ticksUntilRespawn--;
 
         if (this.ticksUntilRespawn === 100) {
@@ -42,6 +49,7 @@ export class Ship extends Polygon {
         if (this.ticksUntilRespawn === 0) {
             this.sides = 3;
             this.isDead = false;
+            this.invincibility = 100;
         }
 
 
@@ -74,13 +82,17 @@ export class Ship extends Polygon {
 
     draw(context) {
         if (this.level > 1) {
-            const delta = (255 / 5) * this.level;
+            const delta = (255 / 5) * (this.level == 2 ? this.level : this.level + 2);
             const r = Math.max(255 - delta, 0).toString(16)
             const g = Math.max(255 - delta, 0).toString(16)
             const b = Math.min(delta, 255).toString(16)
             context.strokeStyle = `#${r}${g}${b}`;
         } else {
             context.strokeStyle = `#FFFFFF`;
+        }
+
+        if (this.invincibility > 0) {
+            context.strokeStyle = `#FF0000`;
         }
         context.lineWidth = 2;
         context.beginPath();
@@ -97,7 +109,7 @@ export class Ship extends Polygon {
     }
 
     powerUp() {
-        if (this.level < 6) {
+        if (this.level < 3) {
             this.level++
         }
     }

@@ -19,8 +19,8 @@ export class Game {
             new Ship(),
         ];
         if (singlePlayer) {
-            this.players.push(new Pirate(new Vector().random(0, 1000), this.playerController(1), this));
-            this.players.push(new Pirate(new Vector().random(0, 1000), this.playerController(2), this));
+            this.players.push(new Pirate(new Vector().random(1000, 5000), this.playerController(1), this));
+            this.players.push(new Pirate(new Vector().random(1000, 5000), this.playerController(2), this));
             // this.players.push(new Pirate(new Vector().random(0, 1000), this.playerController(3), this));
         } else {
             this.players.push(new Ship(new Vector().random(0, 1000)));
@@ -66,7 +66,7 @@ export class Game {
         }
 
         let minDistance = 9999999999999999;
-        const position = player.position.clone().add(new Vector().random(1000, 2000));
+        const position = player.position.clone().add(new Vector().random(-3000, 3000));
         this.players.forEach(p => {
             const distanceToPlayer = p.position.distanceTo(position);
             if (minDistance > distanceToPlayer) {
@@ -85,9 +85,9 @@ export class Game {
         }
     }
 
-    explosionAt(hit, count = 10) {
+    explosionAt(hit, count = 50) {
         for (let i = 0; i < count; i++) {
-            this.particles[id()] = new Particle(hit.position.clone(), hit.magnitude.turn(randomBetween(-0.5, 0.5)).setMagnitude(6));
+            this.particles[id()] = new Particle(hit.position.clone(), hit.magnitude.turn(randomBetween(-0.5, 0.5)).setMagnitude(randomBetween(3, 15)));
         }
     }
 
@@ -101,9 +101,8 @@ export class Game {
                     player.die(() => {
                         player.position =
                             this.players[this.players.length - 1 - index]
-                                .position.clone().add(new Vector(randomBetween(500, 1000), randomBetween(500, 1000)));
+                                .position.clone().add(new Vector(randomBetween(0, 1000), randomBetween(0, 1000)));
                     });
-                    this.playerScores[index]--;
                     this.explosionAt(asteroid);
                     asteroid.markForExplosion();
                     break;
@@ -119,7 +118,10 @@ export class Game {
 
             for (let powerUp of possibleCollisions) {
                 if (powerUp.collidesWith(player)) {
-                    player.powerUp(powerUp);
+                    this.playerScores[index]+=50
+                    if (!(player.invincibility > 0)) {
+                        player.powerUp(powerUp);
+                    }
                     powerUp.markForDeletion();
                     break;
                 }
@@ -154,7 +156,7 @@ export class Game {
                                 .position.clone().add(new Vector(randomBetween(500, 1000), randomBetween(500, 1000)));
                     });
                     if (isKilled) {
-                        this.playerScores[this.playerScores.length - 1 - index]++;
+                        this.playerScores[this.playerScores.length - 1 - index]+=300;
                         this.powerUps[id()] = new PowerUp({position: bullet.position.clone(), game: this})
                     }
                     this.explosionAt(bullet);
@@ -185,7 +187,7 @@ export class Game {
 
     playersShoot() {
         this.players.filter(player => player.isShooting).forEach(player => {
-            if (player.canShoot && !player.isDead) {
+            if (player.canShoot && !player.isDead && !(player.invincibility > 0)) {
                 this.bullets[id()] = new Bullet(player);
                 if (player.level > 2) {
                     const l1 = new Bullet(player)
@@ -340,14 +342,14 @@ export class Game {
             this.context.rotate(Math.PI/2);
             this.context.textAlign = "center";
             this.context.fillText(this.timeLeft, this.canvas.height / 2, -window.screen.width + 50);
-            this.context.fillText('P1: ' + this.playerScores[0], 50, -window.screen.width + 50);
+            this.context.fillText((this.singlePlayer ? 'Score: ' : 'P1: ') + this.playerScores[0], 50, -window.screen.width + 50);
             if (!this.singlePlayer) {
                 this.context.fillText('P2: ' + this.playerScores[1], this.canvas.height - 50, -window.screen.width + 50);
             }
             this.context.restore();
         } else {
             this.context.fillText(this.timeLeft, this.canvas.width / 2, 50);
-            this.context.fillText('P1: ' + this.playerScores[0], 150, 50);
+            this.context.fillText((this.singlePlayer ? 'Score: ' : 'P1: ') + this.playerScores[0], 150, 50);
             if (!this.singlePlayer) {
                 this.context.fillText('P2: ' + this.playerScores[1], this.canvas.width - 150, 50);
             }
