@@ -136,7 +136,8 @@ export class Ship extends Polygon {
             d: this.direction.toFixed(2), // direction
             r: this.radius.toFixed(2), // radius
             s: this.sides, // sides
-            l: this.level // level
+            l: this.level, // level
+            i: this.invincibility
         };
     }
 }
@@ -149,5 +150,6 @@ Ship.parse = (data) => {
     parsed.radius = parseFloat(data.r);
     parsed.sides = data.s;
     parsed.level = data.l;
+    parsed.invincibility = data.i;
     return parsed;
 };
